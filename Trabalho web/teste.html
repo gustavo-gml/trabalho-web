@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Falso</title>
+  <style>
+    table {
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table, th, td {
+      border: 1px solid #000;
+    }
+    th, td {
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Cadastro de Clientes</h2>
+  <form id="formulario">
+    <label for="nome">Nome:</label><br>
+    <input type="text" id="nome" name="nome" required><br><br>
+
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <fieldset>
+      <legend>Sexo</legend>
+      <input type="radio" id="masculino" name="sexo" value="Masculino" required>
+      <label for="masculino">Masculino</label><br>
+
+      <input type="radio" id="feminino" name="sexo" value="Feminino">
+      <label for="feminino">Feminino</label><br>
+    </fieldset><br>
+
+    <label for="senha">Senha:</label><br>
+    <input type="password" id="senha" name="senha" required><br><br>
+
+    <input type="reset" value="Limpar Dados">
+    <button type="submit">Cadastrar Cliente</button>
+  </form>
+
+  <table id="tabelaClientes">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Sexo</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('formulario');
+    const tabela = document.getElementById('tabelaClientes').getElementsByTagName('tbody')[0];
+    let clientes = [];
+    let editando = null;
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+      const sexo = document.querySelector('input[name="sexo"]:checked').value;
+
+      if (editando !== null) {
+        clientes[editando] = { nome, email, sexo };
+        editando = null;
+      } else {
+        clientes.push({ nome, email, sexo });
+      }
+
+      form.reset();
+      atualizarTabela();
+    });
+
+    function atualizarTabela() {
+      tabela.innerHTML = '';
+      clientes.forEach((cliente, index) => {
+        const row = tabela.insertRow();
+
+        row.insertCell(0).innerText = cliente.nome;
+        row.insertCell(1).innerText = cliente.email;
+        row.insertCell(2).innerText = cliente.sexo;
+
+        const acoes = row.insertCell(3);
+        acoes.innerHTML = `
+          <button onclick="editarCliente(${index})">Editar</button>
+          <button onclick="excluirCliente(${index})">Excluir</button>
+        `;
+      });
+    }
+
+    window.editarCliente = function(index) {
+      const cliente = clientes[index];
+      document.getElementById('nome').value = cliente.nome;
+      document.getElementById('email').value = cliente.email;
+      document.querySelector(`input[name="sexo"][value="${cliente.sexo}"]`).checked = true;
+      editando = index;
+    }
+
+    window.excluirCliente = function(index) {
+      clientes.splice(index, 1);
+      atualizarTabela();
+    }
+  </script>
+</body>
+</html>
